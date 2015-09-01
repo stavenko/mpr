@@ -1,5 +1,9 @@
 #pragma once
+#include <unordered_map>
+#include <memory>
+
 namespace mpr{
+
   class Uniform{
     private:
       Uniform();
@@ -19,7 +23,6 @@ namespace mpr{
       }
   };
 
-  void glUniformCall( unsigned int location, float value){
-    std::cout << "float value" << value << " \n";
-  }
+
+  typedef std::unordered_map<std::string, std::shared_ptr<Uniform>> Uniforms;
 }

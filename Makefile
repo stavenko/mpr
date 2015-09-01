@@ -1,8 +1,8 @@
 CC=c++
 CFLAGS=-std=c++11 -Wall -Wc++11-extensions -I./src/include
 LDFLAGS=
-SOURCES=main.cpp
-EXECUTABLE=parser
+SOURCES=main.cpp src/context_functions.cpp src/uniform_functions.cpp
+EXECUTABLE=example
 OBJECTS=$(SOURCES:.cpp=.o)
 
 all: $(SOURCES) $(EXECUTABLE)

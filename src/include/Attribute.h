@@ -1,4 +1,8 @@
+#pragma once
 #include <iostream>
+#include <memory>
+#include <unordered_map>
+#include "interfaces/RendererInitializer.hpp"
 namespace mpr{
   class Attribute final{
     Attribute();
@@ -10,12 +14,13 @@ namespace mpr{
       ) {
         std::cout << "create buffer\n";
       }
-      ~Buffer(){
+      ~Attribute(){
         std::cout << "Dispose buffer\n";
       }
       unsigned int getBufferId(){
         return -1;
       }
-  }
+  };
+  typedef std::unordered_map<std::string, std::shared_ptr<Attribute>> Attributes;
 }
 

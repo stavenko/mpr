@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "../common/Attribute.h"
+#include "../Attribute.h"
 
 
 namespace mpr{
@@ -8,6 +8,7 @@ namespace mpr{
     AttributeProvider(){};
     virtual ~AttributeProvider(){};
     virtual std::vector<std::string> attributeNames() = 0;
+    virtual const Attributes allAttributes() = 0;
     virtual std::shared_ptr<Attribute> getAttributeLocation(std::string attributeName) = 0;
     private:
       AttributeProvider(AttributeProvider &ap);
