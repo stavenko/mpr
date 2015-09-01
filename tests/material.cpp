@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "../src/include/Material.h"
-#include "../src/include/interfaces/RendererInitializer.hpp"
+#include "../src/include/interfaces/RenderSystem.hpp"
 
 std::string testVertexShader = "#version 120\
 \
@@ -36,17 +36,17 @@ void main(){\
 }";
 
 TEST(materialTest, materialCreationTest){
-  std::shared_ptr<mpr::RendererInitializer> r(new mpr::RendererInitializer);
+  std::shared_ptr<mpr::RenderSystem> r(new mpr::RenderSystem);
   mpr::Material m (r, testVertexShader, testFragmentShader);
   ASSERT_EQ(1,1);
 }
 TEST(materialTest, uniformParseTest){
-  std::shared_ptr<mpr::RendererInitializer> r(new mpr::RendererInitializer);
+  std::shared_ptr<mpr::RenderSystem> r(new mpr::RenderSystem);
   mpr::Material m (r, testVertexShader, testFragmentShader);
   ASSERT_EQ(m.getUniformTypes().size(),2);
 }
 TEST(materialTest, attributeParseTest){
-  std::shared_ptr<mpr::RendererInitializer> r(new mpr::RendererInitializer);
+  std::shared_ptr<mpr::RenderSystem> r(new mpr::RenderSystem);
   mpr::Material m (r, testVertexShader, testFragmentShader);
   ASSERT_EQ(m.getAttributeTypes().size(),2);
 }
