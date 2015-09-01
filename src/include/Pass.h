@@ -1,3 +1,4 @@
+#pragma once
 namespace mpr{
   enum PassType {MAIN, PREMAIN, FILTER};
   class Pass{

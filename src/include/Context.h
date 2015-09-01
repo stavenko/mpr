@@ -19,15 +19,54 @@ namespace mpr{
         std::vector<RenderUnitPtr>
       > renderUnits;
     private:
-      Context();
-      Context(Context &ctx);
       Context &operator=(Context &ctx);
     public:
-      explicit Context(std::weak_ptr<RenderSystem> r){}
-      void add(std::shared_ptr<Renderable> r);
-      void add(Pass&);
+      void add(Pass const &p){
+        passes.push_back(p);
+      }
+      void add(std::shared_ptr<Renderable> const r){
+        std::cout << "Add Renderable to context\n";
+        if(passes.size() == 0) {
+          std::cout << "Cannot add object, ContextRenderer has no any passes\n";
+          return;
+        }
+
+        for(auto renderUnit :r->getUnits()){
+          auto passOpts = std::find_if(passes.begin(), passes.end(), 
+            [&renderUnit](Pass &p){
+              return renderUnit.getPassName() == p.name;
+            }
+          );
+          if(passOpts == passes.end()) {
+            std::cout << "pass not found\n";
+            continue;
+          }
+          std::cout << "pass\n";
+          std::string name = renderUnit.getPassName();
+          std::shared_ptr<RenderUnit> ruPtr(new RenderUnit(renderUnit));
+          if(renderUnits.count(name) == 0){
+            std::pair<std::string, RenderUnits> pair =
+              std::make_pair(name, RenderUnits());
+            renderUnits.insert(pair);
+          }
+          renderUnits[name].push_back(ruPtr);
+        }
+      }
+      void setUniforms(std::shared_ptr<UniformProvider> r) {
+        std::cout << "set setUniforms:" << "\n";
+      }
+      std::vector<Pass> const getPasses() const { return passes; }
+      std::vector<RenderUnitPtr> 
+        getRenderUnits(std::string forPass) const { 
+        return renderUnits.at(forPass);
+      }
+      Context(){}
+      Context(Context const &ctx){
+        this->uniforms = ctx.uniforms;
+        this->passes = ctx.passes;
+        this->renderUnits = ctx.renderUnits;
+      }
       void remove(std::shared_ptr<Renderable> r);
-      void render();
 
       virtual std::vector<std::string> uniformNames(){
         return keys(uniforms);
@@ -37,15 +76,7 @@ namespace mpr{
         return uniforms[uniformName];
       }
       virtual const Uniforms allUniforms(){ return uniforms;}
-    private:
-      void unitRender(std::shared_ptr<RenderUnit>);
-      void renderPass(Pass&);
-      void preparePass(Pass&);
 
-      void setMaterial(std::shared_ptr<MaterialProvider>);
-      void setAttributes(std::shared_ptr<AttributeProvider>);
-      void setUniforms(std::shared_ptr<UniformProvider>);
-      void finishRender();
   };
 
 
