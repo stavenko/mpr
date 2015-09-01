@@ -2,14 +2,14 @@
 #include <iostream>
 #include <memory>
 #include <unordered_map>
-#include "interfaces/RendererInitializer.hpp"
+#include "interfaces/RenderSystem.hpp"
 namespace mpr{
   class Attribute final{
     Attribute();
     Attribute &operator=(Attribute&);
 
     public:
-      explicit Attribute(std::weak_ptr<RendererInitializer> r, 
+      explicit Attribute(std::weak_ptr<RenderSystem> r, 
         char *bufferData
       ) {
         std::cout << "create buffer\n";

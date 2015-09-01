@@ -1,5 +1,5 @@
 #pragma once
-#include "interfaces/RendererInitializer.hpp"
+#include "interfaces/RenderSystem.hpp"
 #include <memory>
 
 namespace mpr{
@@ -23,7 +23,7 @@ namespace mpr{
         std::cout << "You have forget to disposeMaterial\n"; 
       }
     public:
-      Material(std::weak_ptr<RendererInitializer> r, 
+      Material(std::weak_ptr<RenderSystem> r, 
                std::string vertexShader, 
                std::string fragmentShader){
         std::cout << "Material is created.\n";
@@ -32,6 +32,6 @@ namespace mpr{
         this->disposeMaterial();
       }
       SSMap getUniformTypes(){ return shaderUniformTypes; }
-      SSMap getAttrubuteTypes(){ return shaderAttributeTypes; }
+      SSMap getAttributeTypes(){ return shaderAttributeTypes; }
   };
 }

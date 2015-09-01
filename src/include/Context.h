@@ -23,7 +23,7 @@ namespace mpr{
       Context(Context &ctx);
       Context &operator=(Context &ctx);
     public:
-      explicit Context(std::weak_ptr<RendererInitializer> r){}
+      explicit Context(std::weak_ptr<RenderSystem> r){}
       void add(std::shared_ptr<Renderable> r);
       void add(Pass&);
       void remove(std::shared_ptr<Renderable> r);
