@@ -1,5 +1,5 @@
-#include "include/ContextRenderer.hpp"
-#include "include/interfaces/RenderUnit.h"
+#include "ContextRenderer.hpp"
+#include "interfaces/RenderUnit.h"
 
 namespace mpr{
   void ContextRenderer::finishRender(){

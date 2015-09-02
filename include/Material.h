@@ -20,7 +20,7 @@ namespace mpr{
       Material(Material &m);
       Material &operator=(Material &m);
       void disposeMaterial() {
-        std::cout << "You have forget to disposeMaterial\n"; 
+        std::cout << "You have forget to dispose material\n"; 
       }
     public:
       Material(std::weak_ptr<RenderSystem> r, 
