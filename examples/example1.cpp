@@ -29,10 +29,10 @@ int main(int argc, char **args){
 
   mpr::Input<mpr::OpenGL>::instance()
     .setRenderSystem(openGL)
-    .onClose([&shoudClose]() { shoudClose = true; });
+    .onClose([&shoudClose]() { shoudClose = true; })
     .bindKeys([&](int key, int scancode, int action, int mode){
       std::cout << "Dymanic\n";
-    })
+    });
 
   mpr::ContextRenderer ctxR(openGL);
 

@@ -1,5 +1,6 @@
 #pragma once
 #include "interfaces/RenderSystem.hpp"
+#include "shader_utils.h"
 #include <memory>
 
 namespace mpr{
@@ -26,7 +27,21 @@ namespace mpr{
       Material(std::weak_ptr<RenderSystem> r, 
                std::string vertexShader, 
                std::string fragmentShader){
-        std::cout << "Material is created.\n";
+        std::pair<SSMap, SSMap> vsResult = parseShader(vertexShader);
+        std::pair<SSMap, SSMap> fsResult = parseShader(fragmentShader);
+        for(auto p: vsResult.first){
+          shaderAttributeTypes.insert(p);
+        }
+        for (auto p: vsResult.second){
+          shaderUniformTypes.insert(p);
+        }
+
+        for(auto p: fsResult.first){
+          shaderAttributeTypes.insert(p);
+        }
+        for (auto p: fsResult.second){
+          shaderUniformTypes.insert(p);
+        }
       };
       ~Material(){
         this->disposeMaterial();
