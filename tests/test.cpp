@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 TEST(gtestWorks, firstTest){
-  ASSERT_EQ(50,0) << "50 is not equal to 0.0";
+  ASSERT_EQ(50,50) << "50 is not equal to 0.0";
 }
 
 

@@ -5,10 +5,11 @@
 namespace mpr{
   class RenderSystem {
     public:
-      RenderSystem() {
-        std::cout << "Render System initialized" << "\n";
-      }
+      RenderSystem() {}
       virtual ~RenderSystem() {} ;
       virtual void finalizeRenderLoop() = 0;
+      virtual unsigned int createProgram(const std::string, 
+                                         const std::string) = 0;
+      virtual void disposeProgram(unsigned int const) = 0;
   };
 }

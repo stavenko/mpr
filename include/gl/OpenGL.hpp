@@ -17,6 +17,59 @@ namespace mpr{
     std::string title;
 
     public:
+      virtual unsigned int createProgram(std::string const vShader, 
+                                         std::string const fShader){
+        unsigned int vsId = glCreateShader(GL_VERTEX_SHADER);
+        unsigned int fsId = glCreateShader(GL_FRAGMENT_SHADER);
+
+        char const *vsSrcPtr = vShader.c_str();
+        glShaderSource(vsId, 1, &vsSrcPtr, NULL);
+        glCompileShader(vsId);
+
+        int InfoLogLength = 0;
+        int Result = 0;
+
+        glGetShaderiv(vsId, GL_COMPILE_STATUS, &Result);
+        glGetShaderiv(vsId, GL_INFO_LOG_LENGTH, &InfoLogLength);
+        if ( InfoLogLength > 0 ){
+          std::string vertexShaderErrorMessage;
+          glGetShaderInfoLog(vsId, InfoLogLength, NULL, &vertexShaderErrorMessage[0]);
+          std::cout << vertexShaderErrorMessage << "\n";
+        }
+
+        char const *fsSrcPtr = fShader.c_str();
+        glShaderSource(fsId, 1, &fsSrcPtr, NULL);
+        glCompileShader(fsId);
+
+        glGetShaderiv(fsId, GL_COMPILE_STATUS, &Result);
+        glGetShaderiv(fsId, GL_INFO_LOG_LENGTH, &InfoLogLength);
+        if ( InfoLogLength > 0 ){
+          std::string fragmentShaderErrorMessage;
+          glGetShaderInfoLog(fsId, InfoLogLength, NULL, &fragmentShaderErrorMessage[0]);
+          std::cout << fragmentShaderErrorMessage << "\n";
+        }
+
+        unsigned int programId = glCreateProgram();
+        glAttachShader(programId, vsId);
+        glAttachShader(programId, fsId);
+        glLinkProgram(programId);
+
+        glGetProgramiv(programId, GL_LINK_STATUS, &Result);
+        glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &InfoLogLength);
+        if ( InfoLogLength > 0 ){
+          std::string programErrorMessage;
+          glGetProgramInfoLog(programId, InfoLogLength, NULL, &programErrorMessage[0]);
+          std::cout << programErrorMessage << "\n";
+        }
+
+
+        glDeleteShader(vsId);
+        glDeleteShader(fsId);
+        return programId;
+      }
+      void disposeProgram(unsigned int programId){
+        glDeleteProgram(programId);
+      }
       OpenGL():
         samples(4), 
         glfwVersionMajor(3), 
@@ -38,6 +91,7 @@ namespace mpr{
         glfwPollEvents();
       }
      friend class Input<OpenGL>;
+
     private:
       GLFWwindow *getWindow(){
         return window;
