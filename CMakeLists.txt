@@ -7,5 +7,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 set(MPR_SOURCES ${MPR_SOURCE_DIR}/src)
 set(MPR_INCLUDES ${MPR_SOURCE_DIR}/include)
 
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "Do not build Tests")
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "Do not build examples")
+
+add_subdirectory(${MPR_SOURCE_DIR}/external/glfw)
+include_directories(${MPR_SOURCE_DIR}/external/glfw/include)
+
 add_subdirectory(src)
 add_subdirectory(examples)
+

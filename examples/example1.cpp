@@ -1,6 +1,9 @@
 #include <iostream> 
+#include <chrono>
+#include <thread>
 #include "renderables/mesh.hpp"
 #include "gl/OpenGL.hpp"
+#include "gl/Input.h"
 #include "Material.h"
 #include "Context.h"
 #include "ContextRenderer.hpp"
@@ -22,8 +25,22 @@ int main(int argc, char **args){
   ctx.add(passOpt);
   ctx.add(mesh);
 
+  bool shoudClose = false;
+
+  mpr::Input<mpr::OpenGL>::instance()
+    .setRenderSystem(openGL)
+    .onClose([&shoudClose]() { shoudClose = true; });
+    .bindKeys([&](int key, int scancode, int action, int mode){
+      std::cout << "Dymanic\n";
+    })
+
   mpr::ContextRenderer ctxR(openGL);
-  ctxR.render(ctx);
+
+  while(!shoudClose){
+
+    ctxR.render(ctx);
+    std::this_thread::sleep_for(std::chrono::milliseconds(20));
+  }
 
   std::cout << "Go on" << "\n";
   return 1; 

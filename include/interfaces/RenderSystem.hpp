@@ -8,5 +8,7 @@ namespace mpr{
       RenderSystem() {
         std::cout << "Render System initialized" << "\n";
       }
+      virtual ~RenderSystem() {} ;
+      virtual void finalizeRenderLoop() = 0;
   };
 }
