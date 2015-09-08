@@ -55,5 +55,8 @@ namespace mpr{
       virtual const Attributes allAttributes(){
         return attributes;
       }
+      virtual void set(const std::string key, const std::shared_ptr<Attribute> a) {
+        attributes.emplace(key, a);
+      } 
   };
 }

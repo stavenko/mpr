@@ -15,8 +15,19 @@ namespace mpr{
     bool doCreateWindow;
     GLFWwindow *window;
     std::string title;
+    unsigned int vertexArrayId;
 
     public:
+      virtual unsigned int createBuffer(size_t size, const void* ptr) {
+        unsigned int bufferId;
+        glGenBuffers(1, &bufferId); 
+        glBindBuffer(GL_ARRAY_BUFFER, bufferId);
+        glBufferData(GL_ARRAY_BUFFER, size, ptr, GL_STATIC_DRAW);
+        return bufferId;
+      }
+      virtual void deleteBuffer(unsigned int id){
+        glDeleteBuffers(1, &id);
+      }
       virtual unsigned int createProgram(std::string const vShader, 
                                          std::string const fShader){
         unsigned int vsId = glCreateShader(GL_VERTEX_SHADER);
@@ -83,6 +94,7 @@ namespace mpr{
    
       virtual ~OpenGL(){
         if(window) glfwDestroyWindow(window);
+        glDeleteVertexArrays(1, &vertexArrayId);
         glfwTerminate();
         std::cout << "destructor called" << std::endl;
       }
@@ -129,6 +141,8 @@ namespace mpr{
           glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
         if(doCreateWindow) createWindow();
+        glGenVertexArrays(1, &vertexArrayId);
+        glBindVertexArray(vertexArrayId);
       }
 
       static void errorCallback(int error, const char *description){

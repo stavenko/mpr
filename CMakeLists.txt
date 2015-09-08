@@ -12,11 +12,19 @@ set(GLFW_BUILD_TESTS OFF CACHE BOOL "Do not build Tests")
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "Do not build examples")
 
 find_package(Boost REQUIRED)
+find_package(OpenGL REQUIRED)
 
 add_subdirectory(${MPR_SOURCE_DIR}/external/glfw)
 add_subdirectory(${MPR_SOURCE_DIR}/external/gtest)
 include_directories(${MPR_SOURCE_DIR}/external/glfw/include)
 
+set(GLEW_SOURCE
+    ${MPR_SOURCE_DIR}/external/glew/src/glew.c
+)
+add_library(GLEW STATIC 
+    ${GLEW_SOURCE}
+    ${GLEW_INCLUDE}
+)
 add_subdirectory(src)
 add_subdirectory(examples)
 add_subdirectory(tests)
