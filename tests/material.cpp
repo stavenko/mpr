@@ -85,6 +85,8 @@ struct RS:public mpr::RenderSystem{
   virtual unsigned int createProgram(std::string const v, std::string const f){
     return 1;
   }
+  virtual void deleteBuffer(unsigned int) {}
+  virtual unsigned int createBuffer(size_t, const void*){return 1;}
   virtual void disposeProgram(unsigned int) {
     
   }

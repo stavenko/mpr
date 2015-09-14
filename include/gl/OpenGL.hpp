@@ -2,6 +2,11 @@
 #include "../interfaces/RenderSystem.hpp"
 #include "../Input.h"
 
+#ifndef __APPLE_CC__
+  #include <GL/glew.h>
+#else
+  #include <OpenGL/gl3.h>
+#endif
 #include <GLFW/glfw3.h>
 
 namespace mpr{
@@ -13,21 +18,25 @@ namespace mpr{
     int height;
     bool isFullScreen;
     bool doCreateWindow;
+    bool glewInitialized;
     GLFWwindow *window;
     std::string title;
     unsigned int vertexArrayId;
 
     public:
       virtual unsigned int createBuffer(size_t size, const void* ptr) {
+        std::cout << "create buffer\n";
         unsigned int bufferId;
         glGenBuffers(1, &bufferId); 
         glBindBuffer(GL_ARRAY_BUFFER, bufferId);
         glBufferData(GL_ARRAY_BUFFER, size, ptr, GL_STATIC_DRAW);
         return bufferId;
       }
+
       virtual void deleteBuffer(unsigned int id){
         glDeleteBuffers(1, &id);
       }
+
       virtual unsigned int createProgram(std::string const vShader, 
                                          std::string const fShader){
         unsigned int vsId = glCreateShader(GL_VERTEX_SHADER);
@@ -73,14 +82,15 @@ namespace mpr{
           std::cout << programErrorMessage << "\n";
         }
 
-
         glDeleteShader(vsId);
         glDeleteShader(fsId);
         return programId;
       }
+
       void disposeProgram(unsigned int programId){
         glDeleteProgram(programId);
       }
+
       OpenGL():
         samples(4), 
         glfwVersionMajor(3), 
@@ -88,8 +98,10 @@ namespace mpr{
         width(640), height(480),
         isFullScreen(false), doCreateWindow(true),
         window(nullptr),
-        title("Default title") {
+        title("Default title"),
+        glewInitialized(false) {
         initGLFW();
+        glew();
       }
    
       virtual ~OpenGL(){
@@ -126,6 +138,22 @@ namespace mpr{
         glfwSetInputMode(window, GLFW_STICKY_KEYS, 1);
       }
 
+      void glew(){
+#ifndef __APPLE__        
+        if(!glewInitialized){
+          glewExperimental=GL_TRUE;
+          GLenum err = glewInit();
+          if (err != GLEW_OK) {
+            fprintf(stderr, "Failed to initialize GLEW\n");
+            fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+            return;
+          }
+          fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
+          glewInitialized = true;
+        }
+#endif
+
+      }
       void initGLFW(){
         if(!glfwInit()){
           this->errorCallback(100501, "GLFW didn't initialized");
