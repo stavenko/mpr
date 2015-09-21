@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 #include "interfaces/uniform_provider.h"
-#include "interfaces/Renderable.h"
+#include "interfaces/renderable.h"
 #include "interfaces/RenderUnit.h"
 #include "Pass.h"
 

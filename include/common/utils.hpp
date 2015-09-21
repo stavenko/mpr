@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <algorithm>
 namespace mpr{
   template<class K, class V>
   std::vector<K> keys(std::unordered_map<K,V> map){
