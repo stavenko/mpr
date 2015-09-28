@@ -10,6 +10,39 @@
 #include "ContextRenderer.hpp"
 #include "interfaces/Uniform.h"
 
+static std::string testVertexShader12 = "#version 120\n\
+\n\
+// Input vertex data, different for all executions of this shader.\n\
+attribute vec3 vertexPosition_modelspace;\n\
+attribute vec3 vertexColor;\n\
+\n\
+// Output data ; will be interpolated for each fragment.\n\
+varying vec3 fragmentColor;\n\
+// Values that stay constant for the whole mesh.\n\
+uniform mat4 MVP;\n\
+\n\
+void main(){\n\
+\n\
+        // Output position of the vertex, in clip space : MVP * position\n\
+        gl_Position =  MVP * vec4(vertexPosition_modelspace,1);\n\
+\n\
+        // The color of each vertex will be interpolated\n\
+        // to produce the color of each fragment\n\
+        fragmentColor = vertexColor;\n\
+}";
+static std::string testFragmentShader12 = "#version \n\
+\n\
+uniform sampler2D texture;\n\
+uniform vec2 ppos;\n\
+// Interpolated values from the vertex shaders\n\
+varying vec3 fragmentColor;\n\
+\n\
+void main(){\n\
+\n\
+        // Output color = color specified in the vertex shader,\n\
+        // interpolated between all 3 surrounding vertices\n\
+        gl_FragColor = vec4(fragmentColor, 1);\n\
+}";
 static const GLfloat g_vertex_buffer_data[][3] = { 
   {-1.0f,-1.0f,-1.0f}, 
   {-1.0f,-1.0f, 1.0f}, 
@@ -66,8 +99,8 @@ int main(int argc, char **args){
   std::shared_ptr<mpr::Mesh> mesh(new mpr::Mesh);
   std::shared_ptr<mpr::Material> material(new mpr::Material(
     openGL,
-    "vertexShader ", 
-    "fragmentShader"
+    testVertexShader12,
+    testFragmentShader12 
   ));
   mpr::Pass passOpt("MAIN", mpr::MAIN);
   mpr::RenderUnit pass0(material, mpr::Uniforms(), mpr::Attributes(), "MAIN");

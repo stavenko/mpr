@@ -33,7 +33,6 @@ namespace mpr{
       
       for(auto &line :lines){
         std::smatch umatch;
-        std::cout << "L:" <<  line <<   "\n";
         std::regex_match(line, umatch, uniformRegex);
         if(umatch.size() > 0)
           uniforms.insert(std::make_pair(umatch[2], umatch[1]));
