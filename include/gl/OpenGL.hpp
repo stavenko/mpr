@@ -6,8 +6,10 @@
   #include <GL/glew.h>
 #else
   #include <OpenGL/gl3.h>
+  #include <OpenGL/glext.h>
 #endif
 #include <GLFW/glfw3.h>
+#include <iostream>
 
 namespace mpr{
   class OpenGL final :public RenderSystem{
@@ -93,15 +95,15 @@ namespace mpr{
 
       OpenGL():
         samples(4), 
-        glfwVersionMajor(3), 
-        glfwVersionMinor(3),
+        glfwVersionMajor(4), 
+        glfwVersionMinor(6),
         width(640), height(480),
         isFullScreen(false), doCreateWindow(true),
         window(nullptr),
-        title("Default title"),
-        glewInitialized(false) {
-        initGLFW();
-        glew();
+        glewInitialized(false),
+        title("Default title") 
+      {
+          initGLFW();
       }
    
       virtual ~OpenGL(){
@@ -154,27 +156,61 @@ namespace mpr{
 #endif
 
       }
+      void determineMaxAvailableVersion(){
+        for (int max=glfwVersionMajor;max!=0;--max){
+          if(max < glfwVersionMajor) glfwVersionMinor = 9;
+          for(int min=glfwVersionMinor; min != 0; --min) {
+
+            std::cout << "Try: " << max <<"."<< min << "\n";
+            glfwWindowHint(GLFW_SAMPLES, samples);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, max);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, min);
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
+            //if(glfwVersionMajor * 10 + glfwVersionMinor > 32)
+              glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+            GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+            const GLFWvidmode *mode = glfwGetVideoMode(monitor); 
+            if(isFullScreen) 
+              window = glfwCreateWindow(mode->width, 
+                mode->height, title.c_str(), monitor, NULL);
+            else
+              window = glfwCreateWindow(width, height, title.c_str(),NULL,NULL);
+            if(!window) continue;
+
+            glfwMakeContextCurrent(window);
+            glfwSetInputMode(window, GLFW_STICKY_KEYS, 1);
+            glfwVersionMajor = max;
+            glfwVersionMinor = min;
+            return;
+
+          }
+        }
+      }
+
       void initGLFW(){
+        std::cout << "init GLFW\n";
+
         if(!glfwInit()){
           this->errorCallback(100501, "GLFW didn't initialized");
           exit( EXIT_FAILURE );
         }
+        if (!doCreateWindow) 
+          glfwWindowHint(GLFW_VISIBLE, false);
         glfwSetErrorCallback(this->errorCallback);
+        determineMaxAvailableVersion();
+        glew();
+        std::cout << "Inited window\n";
         
-        glfwWindowHint(GLFW_SAMPLES, samples);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, glfwVersionMajor);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, glfwVersionMinor);
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
-        if(glfwVersionMajor * 10 + glfwVersionMinor > 32)
-          glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-        if(doCreateWindow) createWindow();
         glGenVertexArrays(1, &vertexArrayId);
+        std::cout << "GEN ARRAYS BIND\n";
+
         glBindVertexArray(vertexArrayId);
+        std::cout << "DONE\n";
       }
 
       static void errorCallback(int error, const char *description){
-        std::cerr << "Error: " << error << " (" << description << ")\n";
+        std::cerr << "[Error] " << error << " (" << description << ")\n";
       }
   };
 }

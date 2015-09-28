@@ -7,15 +7,14 @@
 #include <iostream>
 #include <boost/algorithm/string.hpp>
 namespace mpr{
-  std::regex getUniformRegex(int version){
+  std::regex getUniformRegex(int){
     return std::regex("^uniform (\\w+) (\\w+);"); 
   }
 
   std::regex getAttributeRegex(int version){
     if(version >= 330 ) 
       return std::regex("^layout(.*)\\s+in\\s+(\\w+)\\s+(\\w+);");
-    if(version >= 120 ) 
-      return std::regex("^attribute\\s+(\\w+)\\s+(\\w+);");
+    return std::regex("^attribute\\s+(\\w+)\\s+(\\w+);");
   }
 
   std::pair<StringStringMap, StringStringMap> 
@@ -32,8 +31,9 @@ namespace mpr{
                  attributeRegex = getAttributeRegex(version);
       StringStringMap uniforms, attributes;
       
-      for(auto line :lines){
+      for(auto &line :lines){
         std::smatch umatch;
+        std::cout << "L:" <<  line <<   "\n";
         std::regex_match(line, umatch, uniformRegex);
         if(umatch.size() > 0)
           uniforms.insert(std::make_pair(umatch[2], umatch[1]));
