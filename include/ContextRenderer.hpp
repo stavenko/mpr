@@ -21,8 +21,8 @@ namespace mpr{
       void preparePass(Pass&);
 
       void setMaterial(std::shared_ptr<MaterialProvider>);
-      void setAttributes(std::shared_ptr<AttributeProvider>);
-      void setUniforms(std::shared_ptr<UniformProvider>);
+      void setAttributes(std::shared_ptr<MaterialProvider>, std::shared_ptr<AttributeProvider>);
+      void setUniforms(std::shared_ptr<MaterialProvider>, std::shared_ptr<UniformProvider>);
       void finishRender();
     public:
       void render(Context const&);

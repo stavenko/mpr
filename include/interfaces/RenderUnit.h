@@ -39,6 +39,7 @@ namespace mpr{
       std::string passName;
     public: // implementations;
       virtual std::shared_ptr<Material> getMaterial(){ return material;}
+      virtual std::unordered_map<string, uint16_t> getLocations(){ return material.getLocations();}
       virtual std::vector<std::string> uniformNames(){ return keys(uniforms);}
       virtual std::shared_ptr<Uniform> getUniformValue(std::string name){
         return uniforms[name];

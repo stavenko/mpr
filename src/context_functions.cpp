@@ -5,8 +5,18 @@ namespace mpr{
   void ContextRenderer::finishRender(){
     // std::cout << "Finish rendering\n";
   }
-  void ContextRenderer::setAttributes(std::shared_ptr<AttributeProvider> r){
+  void ContextRenderer::setAttributes(
+      std::shared_ptr<MaterialProvider> m ,
+      std::shared_ptr<AttributeProvider> r)
+  {
     // std::cout << "setAttributes\n";
+  }
+
+  void ContextRenderer::setUniforms(
+      std::shared_ptr<MaterialProvider> m,
+      std::shared_ptr<UniformProvider> const r) 
+  {
+    // std::cout << "set setUniforms:" << "\n";
   }
 
   void ContextRenderer::setMaterial(std::shared_ptr<MaterialProvider> r) {
@@ -29,9 +39,6 @@ namespace mpr{
     for(auto ru : ctx.getRenderUnits(p.name)){
       this->unitRender(ru); 
     }
-  }
-  void ContextRenderer::setUniforms(std::shared_ptr<UniformProvider> const r) {
-    // std::cout << "set setUniforms:" << "\n";
   }
 
   void ContextRenderer::render(Context const &ctx) {

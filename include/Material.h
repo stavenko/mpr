@@ -2,6 +2,7 @@
 #include "interfaces/RenderSystem.hpp"
 #include "shader_utils.h"
 #include <memory>
+#include <iostream>
 
 namespace mpr{
   class Material final {
@@ -42,9 +43,11 @@ namespace mpr{
           shaderUniformTypes.insert(p);
         }
       }
+      
       void compileProgram(const std::string vShader, const std::string fShader){
         std::shared_ptr<RenderSystem> rs(renderSystem);
         programId = rs->createProgram(vShader, fShader);
+        std::cout << "TODO: Read locations\n";
       }
     public:
       Material(std::weak_ptr<RenderSystem> r, 
