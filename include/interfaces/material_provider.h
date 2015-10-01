@@ -2,11 +2,15 @@
 #include "../Material.h"
 
 namespace mpr{
+  using ::std::string;
+  using ::std::unordered_map;
+  using ::std::shared_ptr;
   class MaterialProvider{
     public:
       MaterialProvider(){};
       virtual ~MaterialProvider(){};
-      virtual std::shared_ptr<Material> getMaterial() =0;
-      virtual std::unordered_map<std::string, uint16_t> getLocations() =0;
+      virtual shared_ptr<Material> getMaterial() =0;
+      virtual const unordered_map<string, unsigned int> &getUniformLocations() =0;
+      virtual const unordered_map<string, unsigned int > &getAttributeLocations() =0;
   };
 }

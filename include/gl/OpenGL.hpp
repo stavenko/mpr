@@ -39,6 +39,14 @@ namespace mpr{
         glDeleteBuffers(1, &id);
       }
 
+      virtual unsigned int getUniformLocation(unsigned int programId, std::string &str)
+      {
+        return glGetUniformLocation(programId, str.c_str());
+      };
+      virtual unsigned int getAttributeLocation(unsigned int programId, std::string &str){
+        return glGetAttribLocation(programId, str.c_str());
+
+      };
       virtual unsigned int createProgram(std::string const vShader, 
                                          std::string const fShader){
         unsigned int vsId = glCreateShader(GL_VERTEX_SHADER);

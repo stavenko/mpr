@@ -2,20 +2,27 @@
 #include "interfaces/RenderSystem.hpp"
 #include "shader_utils.h"
 #include <memory>
+#include <string>
 #include <iostream>
 
 namespace mpr{
+  using ::std::unordered_map;
+  using ::std::string;
+  using ::std::weak_ptr;
+  using ::std::shared_ptr;
+  using ::std::pair;
   class Material final {
+
     // Responsibility:
     // Create and store material for opengl system,
     // Dispose material when none of shared_ptrs left.
     // Available to hold all info about material;
-    typedef std::unordered_map<std::string, std::string>  SSMap;
+    typedef unordered_map<string, string>  SSMap;
     private:
-      std::weak_ptr<RenderSystem> renderSystem;
+      weak_ptr<RenderSystem> renderSystem;
       unsigned int programId;
-      std::unordered_map<std::string, unsigned int> uniformLocations;
-      std::unordered_map<std::string, unsigned int> attributeLocations;
+      unordered_map<string, unsigned int> uniformLocations;
+      unordered_map<string, unsigned int> attributeLocations;
       SSMap shaderAttributeTypes;
       SSMap shaderUniformTypes;
     private:
@@ -26,12 +33,13 @@ namespace mpr{
         std::shared_ptr<RenderSystem> rs(renderSystem);
         rs->disposeProgram(programId);
       }
-      void readInputs(const std::string vShader, const std::string fShader){
-        std::pair<SSMap, SSMap> vsResult = parseShader(vShader);
-        std::pair<SSMap, SSMap> fsResult = parseShader(fShader);
+      void readInputs(const string vShader, const string fShader){
+        pair<SSMap, SSMap> vsResult = parseShader(vShader);
+        pair<SSMap, SSMap> fsResult = parseShader(fShader);
         for(auto p: vsResult.first){
           shaderAttributeTypes.insert(p);
         }
+
         for (auto p: vsResult.second){
           shaderUniformTypes.insert(p);
         }
@@ -39,26 +47,37 @@ namespace mpr{
         for(auto p: fsResult.first){
           shaderAttributeTypes.insert(p);
         }
+
         for (auto p: fsResult.second){
           shaderUniformTypes.insert(p);
         }
       }
       
-      void compileProgram(const std::string vShader, const std::string fShader){
-        std::shared_ptr<RenderSystem> rs(renderSystem);
+      void compileProgram(const string vShader, const string fShader){
+        shared_ptr<RenderSystem> rs(renderSystem);
         programId = rs->createProgram(vShader, fShader);
-        std::cout << "TODO: Read locations\n";
+        for(auto &uni: shaderUniformTypes)
+          uniformLocations.emplace(uni.first, 
+              rs->getUniformLocation(programId, uni.second));
+        for(auto &attr:shaderAttributeTypes)
+          attributeLocations.emplace(attr.first,
+            rs->getAttributeLocation(programId, attr.second));
       }
     public:
-      Material(std::weak_ptr<RenderSystem> r, 
-               const std::string vertexShader, 
-               const std::string fragmentShader):renderSystem(r){
+      Material(weak_ptr<RenderSystem> r, 
+               const string vertexShader, 
+               const string fragmentShader):renderSystem(r){
         readInputs(vertexShader, fragmentShader);
         compileProgram(vertexShader, fragmentShader);
       };
       ~Material(){
         this->disposeMaterial();
       }
+      const unordered_map<string, unsigned int> &
+        getAttributeLocations(){ return attributeLocations; }
+      const unordered_map<string, unsigned int> &
+        getUniformLocations(){ return uniformLocations; }
+
       const SSMap getUniformTypes(){ return shaderUniformTypes; }
       const SSMap getAttributeTypes(){ return shaderAttributeTypes; }
   };

@@ -14,5 +14,7 @@ namespace mpr{
       virtual void disposeProgram(unsigned int const) = 0;
       virtual unsigned int createBuffer(size_t, const void*) = 0;
       virtual void deleteBuffer(unsigned int) =0;
+      virtual unsigned int getUniformLocation(unsigned int, std::string&) =0;
+      virtual unsigned int getAttributeLocation(unsigned int, std::string&) =0;
   };
 }

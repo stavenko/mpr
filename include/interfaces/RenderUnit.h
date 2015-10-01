@@ -5,10 +5,18 @@
 #include "../common/utils.hpp"
 
 namespace mpr{
+    using ::std::unordered_map;
+    using ::std::string;
+    using ::std::weak_ptr;
+    using ::std::shared_ptr;
+    using ::std::pair;
+    using ::std::vector;
   class RenderUnit final:
     public MaterialProvider, 
     public UniformProvider, 
     public AttributeProvider{
+
+
     RenderUnit(){};
     public:
       RenderUnit(RenderUnit const &other){
@@ -30,33 +38,38 @@ namespace mpr{
           std::cout << "render unit created.\n";
         }
       virtual ~RenderUnit(){}
-      std::string getPassName() { return this->passName; }
+      string getPassName() { return this->passName; }
 
     private:
       Uniforms uniforms;
       Attributes attributes;
-      std::shared_ptr<Material> material;
-      std::string passName;
+      shared_ptr<Material> material;
+      string passName;
     public: // implementations;
-      virtual std::shared_ptr<Material> getMaterial(){ return material;}
-      virtual std::unordered_map<string, uint16_t> getLocations(){ return material.getLocations();}
-      virtual std::vector<std::string> uniformNames(){ return keys(uniforms);}
-      virtual std::shared_ptr<Uniform> getUniformValue(std::string name){
+      virtual shared_ptr<Material> getMaterial(){ return material;}
+      virtual const unordered_map<string, unsigned int> &getAttributeLocations(){ 
+        return material->getAttributeLocations();
+      }
+      virtual const unordered_map<string, unsigned int> &getUniformLocations(){ 
+        return material->getUniformLocations();
+      }
+      virtual vector<string> uniformNames(){ return keys(uniforms);}
+      virtual shared_ptr<Uniform> getUniformValue(string name){
         return uniforms[name];
       }
       virtual const Uniforms allUniforms(){
         return uniforms;
       }
-      virtual std::vector<std::string> attributeNames() {
+      virtual vector<string> attributeNames() {
         return keys(attributes);
       }
-      virtual std::shared_ptr<Attribute> getAttributeLocation(std::string attributeName){
+      virtual shared_ptr<Attribute> getAttributeLocation(string attributeName){
         return attributes[attributeName];
       }
       virtual const Attributes allAttributes(){
         return attributes;
       }
-      virtual void set(const std::string key, const std::shared_ptr<Attribute> a) {
+      virtual void set(const string key, const shared_ptr<Attribute> a) {
         attributes.emplace(key, a);
       } 
   };

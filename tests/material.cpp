@@ -88,9 +88,9 @@ struct RS:public mpr::RenderSystem{
   }
   virtual void deleteBuffer(unsigned int) {}
   virtual unsigned int createBuffer(size_t, const void*){return 1;}
-  virtual void disposeProgram(unsigned int) {
-    
-  }
+  virtual unsigned int getUniformLocation(unsigned int, std::string&){}
+  virtual unsigned int getAttributeLocation(unsigned int, std::string&){}
+  virtual void disposeProgram(unsigned int) { }
 };
 
 TEST(materialTest, materialCreationTest){

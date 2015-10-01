@@ -2,21 +2,26 @@
 #include "interfaces/RenderUnit.h"
 
 namespace mpr{
+  using std::shared_ptr;
   void ContextRenderer::finishRender(){
     // std::cout << "Finish rendering\n";
   }
   void ContextRenderer::setAttributes(
-      std::shared_ptr<MaterialProvider> m ,
-      std::shared_ptr<AttributeProvider> r)
+      shared_ptr<Material> m ,
+      shared_ptr<AttributeProvider> r)
   {
-    // std::cout << "setAttributes\n";
+    for(auto attr:m->getAttributeLocations()){
+      std::cout << attr.first << " " << attr.second << "\n";
+    }
   }
 
   void ContextRenderer::setUniforms(
-      std::shared_ptr<MaterialProvider> m,
-      std::shared_ptr<UniformProvider> const r) 
+      shared_ptr<Material> m,
+      shared_ptr<UniformProvider> const r) 
   {
-    // std::cout << "set setUniforms:" << "\n";
+    for(auto uni:m->getUniformLocations()){
+      std::cout << uni.first << " " << uni.second << "\n";
+    }
   }
 
   void ContextRenderer::setMaterial(std::shared_ptr<MaterialProvider> r) {
@@ -27,10 +32,10 @@ namespace mpr{
     // std::cout << "prepare pass:" << p.name << "\n";
   }
 
-  void ContextRenderer::unitRender(std::shared_ptr<RenderUnit> r) {
+  void ContextRenderer::unitRender(shared_ptr<RenderUnit> r) {
     this->setMaterial(r);
-    this->setAttributes(static_cast<std::shared_ptr<mpr::AttributeProvider>>(r));
-    this->setUniforms(r);
+    this->setAttributes(r->getMaterial(),static_cast<shared_ptr<mpr::AttributeProvider>>(r));
+    this->setUniforms(r->getMaterial(), r);
     this->finishRender();
   }
 
