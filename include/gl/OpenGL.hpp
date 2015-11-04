@@ -26,6 +26,16 @@ namespace mpr{
     unsigned int vertexArrayId;
 
     public:
+      virtual void viewport(){
+        int width, height;
+        glfwGetFramebufferSize(window, &width, &height);
+        glViewport(0,0,width, height);
+      }
+      virtual void setProgram(unsigned int programId) {
+        std::cout << "use " << int(programId) << "\n";
+        glUseProgram(programId);
+      }
+
       virtual unsigned int createBuffer(size_t size, const void* ptr) {
         std::cout << "create buffer\n";
         unsigned int bufferId;
@@ -39,13 +49,18 @@ namespace mpr{
         glDeleteBuffers(1, &id);
       }
 
-      virtual unsigned int getUniformLocation(unsigned int programId, std::string &str)
+      virtual unsigned int getUniformLocation(unsigned int programId, const std::string &str)
       {
-        return glGetUniformLocation(programId, str.c_str());
-      };
-      virtual unsigned int getAttributeLocation(unsigned int programId, std::string &str){
-        return glGetAttribLocation(programId, str.c_str());
+        
 
+        unsigned int pid = glGetUniformLocation(programId, str.c_str() );
+        std ::cout << pid << " : " << programId << " : <" << str << ">\n";  
+        return pid;
+      };
+      virtual unsigned int getAttributeLocation(unsigned int programId, const std::string &str){
+        unsigned int pid = glGetAttribLocation(programId, str.c_str());
+        std ::cout << pid << " : " << programId << " : " << str << "\n";  
+        return pid;
       };
       virtual unsigned int createProgram(std::string const vShader, 
                                          std::string const fShader){
@@ -63,8 +78,11 @@ namespace mpr{
         glGetShaderiv(vsId, GL_INFO_LOG_LENGTH, &InfoLogLength);
         if ( InfoLogLength > 0 ){
           std::string vertexShaderErrorMessage;
-          glGetShaderInfoLog(vsId, InfoLogLength, NULL, &vertexShaderErrorMessage[0]);
+          char log[InfoLogLength];
+          glGetShaderInfoLog(vsId, InfoLogLength, NULL, log);
+          // glGetShaderInfoLog(vsId, InfoLogLength, NULL, &vertexShaderErrorMessage[0]);
           std::cout << vertexShaderErrorMessage << "\n";
+          std::cout << log << "\n";
         }
 
         char const *fsSrcPtr = fShader.c_str();
@@ -73,10 +91,13 @@ namespace mpr{
 
         glGetShaderiv(fsId, GL_COMPILE_STATUS, &Result);
         glGetShaderiv(fsId, GL_INFO_LOG_LENGTH, &InfoLogLength);
+        std::cout << "{" << InfoLogLength << "\n";
         if ( InfoLogLength > 0 ){
           std::string fragmentShaderErrorMessage;
-          glGetShaderInfoLog(fsId, InfoLogLength, NULL, &fragmentShaderErrorMessage[0]);
+          char log[InfoLogLength];
+          glGetShaderInfoLog(fsId, InfoLogLength, NULL, log);
           std::cout << fragmentShaderErrorMessage << "\n";
+          std::cout << log << "\n";
         }
 
         unsigned int programId = glCreateProgram();
@@ -98,6 +119,7 @@ namespace mpr{
       }
 
       void disposeProgram(unsigned int programId){
+        std::cout << "DISPOSE Me\n";
         glDeleteProgram(programId);
       }
 

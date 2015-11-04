@@ -11,7 +11,7 @@ namespace mpr{
       shared_ptr<AttributeProvider> r)
   {
     for(auto attr:m->getAttributeLocations()){
-      std::cout << attr.first << " " << attr.second << "\n";
+      // std::cout << attr.first << " " << attr.second << "\n";
     }
   }
 
@@ -20,7 +20,7 @@ namespace mpr{
       shared_ptr<UniformProvider> const r) 
   {
     for(auto uni:m->getUniformLocations()){
-      std::cout << uni.first << " " << uni.second << "\n";
+      // std::cout << uni.first << " " << uni.second << "\n";
     }
   }
 
@@ -48,6 +48,8 @@ namespace mpr{
 
   void ContextRenderer::render(Context const &ctx) {
     // std::cout << "render\n";
+    this->renderSystem->viewport();
+    
     
     for(auto pass : ctx.getPasses()) {
       this->renderPass(ctx, pass); 

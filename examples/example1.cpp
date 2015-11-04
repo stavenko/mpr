@@ -10,14 +10,16 @@
 #include "ContextRenderer.hpp"
 #include "interfaces/Uniform.h"
 
-static std::string testVertexShader12 = "#version 120\n\
+static std::string testVertexShader12 = "#version 410\n\
 \n\
 // Input vertex data, different for all executions of this shader.\n\
-attribute vec3 vertexPosition_modelspace;\n\
-attribute vec3 vertexColor;\n\
+layout(location=0) in vec3 vertexPosition_modelspace;\n\
+layout(location=1) in vec3 vertexColor;\n\
+layout(location=2) in vec2 uvIn;\n\
 \n\
 // Output data ; will be interpolated for each fragment.\n\
-varying vec3 fragmentColor;\n\
+out vec3 fragmentColor;\n\
+out vec2 uv;\n\
 // Values that stay constant for the whole mesh.\n\
 uniform mat4 MVP;\n\
 \n\
@@ -29,19 +31,23 @@ void main(){\n\
         // The color of each vertex will be interpolated\n\
         // to produce the color of each fragment\n\
         fragmentColor = vertexColor;\n\
+        uv = uvIn;\n\
 }";
-static std::string testFragmentShader12 = "#version \n\
+static std::string testFragmentShader12 = "#version 410\n\
 \n\
-uniform sampler2D texture;\n\
+uniform sampler2D tex;\n\
 uniform vec2 ppos;\n\
 // Interpolated values from the vertex shaders\n\
-varying vec3 fragmentColor;\n\
+in vec3 fragmentColor;\n\
+in vec2 uv;\n\
+out vec4 color;\n\
 \n\
 void main(){\n\
 \n\
         // Output color = color specified in the vertex shader,\n\
         // interpolated between all 3 surrounding vertices\n\
-        gl_FragColor = vec4(fragmentColor, 1);\n\
+        vec4 someColor= texture(tex, uv);\n\
+        color = vec4(fragmentColor.xy + ppos, 1, 1) + someColor;\n\
 }";
 static const GLfloat g_vertex_buffer_data[][3] = { 
   {-1.0f,-1.0f,-1.0f}, 

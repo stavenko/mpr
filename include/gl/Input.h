@@ -1,6 +1,5 @@
 #pragma once
 #include <memory>
-#include "../Input.h"
 #include "OpenGL.hpp"
 
 namespace mpr{

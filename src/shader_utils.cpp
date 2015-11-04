@@ -39,7 +39,7 @@ namespace mpr{
         std::smatch amatch;
         std::regex_match(line, amatch, attributeRegex);
         if(amatch.size() > 0)
-          attributes.insert(std::make_pair(amatch[2], amatch[1]));
+          attributes.insert(std::make_pair(amatch[3], amatch[2]));
       }
     return std::make_pair(attributes, uniforms);
   }

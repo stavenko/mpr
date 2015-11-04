@@ -56,12 +56,17 @@ namespace mpr{
       void compileProgram(const string vShader, const string fShader){
         shared_ptr<RenderSystem> rs(renderSystem);
         programId = rs->createProgram(vShader, fShader);
-        for(auto &uni: shaderUniformTypes)
+        // rs->setProgram(programId);
+        for(auto &uni: shaderUniformTypes){
+          std::cout << "uni: " << uni.first << " " << uni.second << "\n";
           uniformLocations.emplace(uni.first, 
-              rs->getUniformLocation(programId, uni.second));
-        for(auto &attr:shaderAttributeTypes)
+              rs->getUniformLocation(programId, uni.first));
+        }
+        for(auto &attr:shaderAttributeTypes){
+          std::cout << "attr: " << attr.first << " " << attr.second << "\n";
           attributeLocations.emplace(attr.first,
-            rs->getAttributeLocation(programId, attr.second));
+            rs->getAttributeLocation(programId, attr.first));
+        }
       }
     public:
       Material(weak_ptr<RenderSystem> r, 
