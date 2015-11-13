@@ -93,6 +93,9 @@ struct RS:public mpr::RenderSystem{
   virtual void disposeProgram(unsigned int) { }
   virtual void setProgram(unsigned int) { }
   virtual void viewport() { }
+  virtual unsigned int installAttribute(uint32_t location, uint32_t buffer,
+                                        uint16_t size, uint32_t type, bool isNormalized,
+                                        uint16_t stride, void* ptr) {}
 };
 
 TEST(materialTest, materialCreationTest){

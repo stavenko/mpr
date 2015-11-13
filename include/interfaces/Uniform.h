@@ -1,6 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include <memory>
+#include "./RenderSystem.hpp"
 
 namespace mpr{
 
@@ -18,8 +19,8 @@ namespace mpr{
       const T value;
     public:
       explicit UniformValue(T &v):value(v) {}
-      virtual void setup(unsigned int location) {
-        glUniformCall(location, value);
+      virtual void set(std::shared_ptr<RenderSystem> rs, unsigned int location) {
+        rs->installUniform(location, value);
       }
   };
 

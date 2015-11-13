@@ -1,246 +1,257 @@
-#pragma once 
+#pragma once
 #include "../interfaces/RenderSystem.hpp"
 #include "../Input.h"
 
 #ifndef __APPLE_CC__
-  #include <GL/glew.h>
+#include <GL/glew.h>
 #else
-  #include <OpenGL/gl3.h>
-  #include <OpenGL/glext.h>
+#include <OpenGL/gl3.h>
+#include <OpenGL/glext.h>
 #endif
 #include <GLFW/glfw3.h>
 #include <iostream>
 
-namespace mpr{
-  class OpenGL final :public RenderSystem{
-    int samples;
-    int glfwVersionMajor;
-    int glfwVersionMinor;
-    int width;
-    int height;
-    bool isFullScreen;
-    bool doCreateWindow;
-    bool glewInitialized;
-    GLFWwindow *window;
-    std::string title;
-    unsigned int vertexArrayId;
+namespace mpr {
+class OpenGL final : public RenderSystem {
+  int samples;
+  int glfwVersionMajor;
+  int glfwVersionMinor;
+  int width;
+  int height;
+  bool isFullScreen;
+  bool doCreateWindow;
+  bool glewInitialized;
+  GLFWwindow *window;
+  std::string title;
+  unsigned int vertexArrayId;
 
-    public:
-      virtual void viewport(){
-        int width, height;
-        glfwGetFramebufferSize(window, &width, &height);
-        glViewport(0,0,width, height);
-      }
-      virtual void setProgram(unsigned int programId) {
-        std::cout << "use " << int(programId) << "\n";
-        glUseProgram(programId);
-      }
+ public:
+  virtual unsigned int installAttribute(uint32_t location, uint32_t buffer,
+                                        uint16_t size, uint32_t type,
+                                        bool isNormalized, uint16_t stride,
+                                        void *ptr) {
+    glEnableVertexAttribArray(location);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    glVertexAttribPointer(location, size, type, isNormalized, stride, ptr);
+  }
 
-      virtual unsigned int createBuffer(size_t size, const void* ptr) {
-        std::cout << "create buffer\n";
-        unsigned int bufferId;
-        glGenBuffers(1, &bufferId); 
-        glBindBuffer(GL_ARRAY_BUFFER, bufferId);
-        glBufferData(GL_ARRAY_BUFFER, size, ptr, GL_STATIC_DRAW);
-        return bufferId;
-      }
+  virtual void viewport() {
+    int width, height;
+    glfwGetFramebufferSize(window, &width, &height);
+    glViewport(0, 0, width, height);
+  }
 
-      virtual void deleteBuffer(unsigned int id){
-        glDeleteBuffers(1, &id);
-      }
+  virtual void setProgram(unsigned int programId) {
+    glUseProgram(programId);
+  }
 
-      virtual unsigned int getUniformLocation(unsigned int programId, const std::string &str)
-      {
-        
+  virtual unsigned int createBuffer(size_t size, const void *ptr) {
+    std::cout << "create buffer\n";
+    unsigned int bufferId;
+    glGenBuffers(1, &bufferId);
+    glBindBuffer(GL_ARRAY_BUFFER, bufferId);
+    glBufferData(GL_ARRAY_BUFFER, size, ptr, GL_STATIC_DRAW);
+    return bufferId;
+  }
 
-        unsigned int pid = glGetUniformLocation(programId, str.c_str() );
-        std ::cout << pid << " : " << programId << " : <" << str << ">\n";  
-        return pid;
-      };
-      virtual unsigned int getAttributeLocation(unsigned int programId, const std::string &str){
-        unsigned int pid = glGetAttribLocation(programId, str.c_str());
-        std ::cout << pid << " : " << programId << " : " << str << "\n";  
-        return pid;
-      };
-      virtual unsigned int createProgram(std::string const vShader, 
-                                         std::string const fShader){
-        unsigned int vsId = glCreateShader(GL_VERTEX_SHADER);
-        unsigned int fsId = glCreateShader(GL_FRAGMENT_SHADER);
+  virtual void deleteBuffer(unsigned int id) { glDeleteBuffers(1, &id); }
 
-        char const *vsSrcPtr = vShader.c_str();
-        glShaderSource(vsId, 1, &vsSrcPtr, NULL);
-        glCompileShader(vsId);
+  virtual unsigned int getUniformLocation(unsigned int programId,
+                                          const std::string &str) {
 
-        int InfoLogLength = 0;
-        int Result = 0;
+    unsigned int pid = glGetUniformLocation(programId, str.c_str());
+    std::cout << pid << " : " << programId << " : <" << str << ">\n";
+    return pid;
+  };
+  virtual unsigned int getAttributeLocation(unsigned int programId,
+                                            const std::string &str) {
+    unsigned int pid = glGetAttribLocation(programId, str.c_str());
+    std::cout << pid << " : " << programId << " : " << str << "\n";
+    return pid;
+  };
+  virtual unsigned int createProgram(std::string const vShader,
+                                     std::string const fShader) {
+    unsigned int vsId = glCreateShader(GL_VERTEX_SHADER);
+    unsigned int fsId = glCreateShader(GL_FRAGMENT_SHADER);
 
-        glGetShaderiv(vsId, GL_COMPILE_STATUS, &Result);
-        glGetShaderiv(vsId, GL_INFO_LOG_LENGTH, &InfoLogLength);
-        if ( InfoLogLength > 0 ){
-          std::string vertexShaderErrorMessage;
-          char log[InfoLogLength];
-          glGetShaderInfoLog(vsId, InfoLogLength, NULL, log);
-          // glGetShaderInfoLog(vsId, InfoLogLength, NULL, &vertexShaderErrorMessage[0]);
-          std::cout << vertexShaderErrorMessage << "\n";
-          std::cout << log << "\n";
-        }
+    char const *vsSrcPtr = vShader.c_str();
+    glShaderSource(vsId, 1, &vsSrcPtr, NULL);
+    glCompileShader(vsId);
 
-        char const *fsSrcPtr = fShader.c_str();
-        glShaderSource(fsId, 1, &fsSrcPtr, NULL);
-        glCompileShader(fsId);
+    int InfoLogLength = 0;
+    int Result = 0;
 
-        glGetShaderiv(fsId, GL_COMPILE_STATUS, &Result);
-        glGetShaderiv(fsId, GL_INFO_LOG_LENGTH, &InfoLogLength);
-        std::cout << "{" << InfoLogLength << "\n";
-        if ( InfoLogLength > 0 ){
-          std::string fragmentShaderErrorMessage;
-          char log[InfoLogLength];
-          glGetShaderInfoLog(fsId, InfoLogLength, NULL, log);
-          std::cout << fragmentShaderErrorMessage << "\n";
-          std::cout << log << "\n";
-        }
+    glGetShaderiv(vsId, GL_COMPILE_STATUS, &Result);
+    glGetShaderiv(vsId, GL_INFO_LOG_LENGTH, &InfoLogLength);
+    if (InfoLogLength > 0) {
+      std::string vertexShaderErrorMessage;
+      char log[InfoLogLength];
+      glGetShaderInfoLog(vsId, InfoLogLength, NULL, log);
+      // glGetShaderInfoLog(vsId, InfoLogLength, NULL,
+      // &vertexShaderErrorMessage[0]);
+      std::cout << vertexShaderErrorMessage << "\n";
+      std::cout << log << "\n";
+    }
 
-        unsigned int programId = glCreateProgram();
-        glAttachShader(programId, vsId);
-        glAttachShader(programId, fsId);
-        glLinkProgram(programId);
+    char const *fsSrcPtr = fShader.c_str();
+    glShaderSource(fsId, 1, &fsSrcPtr, NULL);
+    glCompileShader(fsId);
 
-        glGetProgramiv(programId, GL_LINK_STATUS, &Result);
-        glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &InfoLogLength);
-        if ( InfoLogLength > 0 ){
-          std::string programErrorMessage;
-          glGetProgramInfoLog(programId, InfoLogLength, NULL, &programErrorMessage[0]);
-          std::cout << programErrorMessage << "\n";
-        }
+    glGetShaderiv(fsId, GL_COMPILE_STATUS, &Result);
+    glGetShaderiv(fsId, GL_INFO_LOG_LENGTH, &InfoLogLength);
+    std::cout << "{" << InfoLogLength << "\n";
+    if (InfoLogLength > 0) {
+      std::string fragmentShaderErrorMessage;
+      char log[InfoLogLength];
+      glGetShaderInfoLog(fsId, InfoLogLength, NULL, log);
+      std::cout << fragmentShaderErrorMessage << "\n";
+      std::cout << log << "\n";
+    }
 
-        glDeleteShader(vsId);
-        glDeleteShader(fsId);
-        return programId;
-      }
+    unsigned int programId = glCreateProgram();
+    glAttachShader(programId, vsId);
+    glAttachShader(programId, fsId);
+    glLinkProgram(programId);
 
-      void disposeProgram(unsigned int programId){
-        std::cout << "DISPOSE Me\n";
-        glDeleteProgram(programId);
-      }
+    glGetProgramiv(programId, GL_LINK_STATUS, &Result);
+    glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &InfoLogLength);
+    if (InfoLogLength > 0) {
+      std::string programErrorMessage;
+      glGetProgramInfoLog(programId, InfoLogLength, NULL,
+                          &programErrorMessage[0]);
+      std::cout << programErrorMessage << "\n";
+    }
 
-      OpenGL():
-        samples(4), 
-        glfwVersionMajor(4), 
+    glDeleteShader(vsId);
+    glDeleteShader(fsId);
+    return programId;
+  }
+
+  void disposeProgram(unsigned int programId) {
+    std::cout << "DISPOSE Me\n";
+    glDeleteProgram(programId);
+  }
+
+  OpenGL()
+      : samples(4),
+        glfwVersionMajor(4),
         glfwVersionMinor(6),
-        width(640), height(480),
-        isFullScreen(false), doCreateWindow(true),
+        width(640),
+        height(480),
+        isFullScreen(false),
+        doCreateWindow(true),
         window(nullptr),
         glewInitialized(false),
-        title("Default title") 
-      {
-          initGLFW();
-      }
-   
-      virtual ~OpenGL(){
-        if(window) glfwDestroyWindow(window);
-        glDeleteVertexArrays(1, &vertexArrayId);
-        glfwTerminate();
-        std::cout << "destructor called" << std::endl;
-      }
-      virtual void finalizeRenderLoop(){
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-      }
-     friend class Input<OpenGL>;
+        title("Default title") {
+    initGLFW();
+  }
 
-    private:
-      GLFWwindow *getWindow(){
-        return window;
+  virtual ~OpenGL() {
+    if (window) glfwDestroyWindow(window);
+    glDeleteVertexArrays(1, &vertexArrayId);
+    glfwTerminate();
+    std::cout << "destructor called" << std::endl;
+  }
+  virtual void finalizeRenderLoop() {
+    glfwSwapBuffers(window);
+    glfwPollEvents();
+  }
+  friend class Input<OpenGL>;
+
+ private:
+  GLFWwindow *getWindow() { return window; }
+  void createWindow() {
+    GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+    if (isFullScreen)
+      window = glfwCreateWindow(mode->width, mode->height, title.c_str(),
+                                monitor, NULL);
+    else
+      window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
+
+    if (!window) {
+      glfwTerminate();
+      this->errorCallback(100500, "Window cannot be created");
+      exit(EXIT_FAILURE);
+    }
+    glfwMakeContextCurrent(window);
+    glfwSetInputMode(window, GLFW_STICKY_KEYS, 1);
+  }
+
+  void glew() {
+#ifndef __APPLE__
+    if (!glewInitialized) {
+      glewExperimental = GL_TRUE;
+      GLenum err = glewInit();
+      if (err != GLEW_OK) {
+        fprintf(stderr, "Failed to initialize GLEW\n");
+        fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+        return;
       }
-      void createWindow(){
+      fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
+      glewInitialized = true;
+    }
+#endif
+  }
+  void determineMaxAvailableVersion() {
+    for (int max = glfwVersionMajor; max != 0; --max) {
+      if (max < glfwVersionMajor) glfwVersionMinor = 9;
+      for (int min = glfwVersionMinor; min != 0; --min) {
+
+        std::cout << "Try: " << max << "." << min << "\n";
+        glfwWindowHint(GLFW_SAMPLES, samples);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, max);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, min);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
+        // if(glfwVersionMajor * 10 + glfwVersionMinor > 32)
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
         GLFWmonitor *monitor = glfwGetPrimaryMonitor();
-        const GLFWvidmode *mode = glfwGetVideoMode(monitor); 
-        if(isFullScreen) 
-          window = glfwCreateWindow(mode->width, 
-            mode->height, title.c_str(), monitor, NULL);
+        const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+        if (isFullScreen)
+          window = glfwCreateWindow(mode->width, mode->height, title.c_str(),
+                                    monitor, NULL);
         else
-          window = glfwCreateWindow(width, height, title.c_str(),NULL,NULL);
+          window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
+        if (!window) continue;
 
-        if(!window) {
-          glfwTerminate();
-          this->errorCallback(100500, "Window cannot be created");
-          exit(EXIT_FAILURE);
-        }
         glfwMakeContextCurrent(window);
         glfwSetInputMode(window, GLFW_STICKY_KEYS, 1);
+        glfwVersionMajor = max;
+        glfwVersionMinor = min;
+        return;
       }
+    }
+  }
 
-      void glew(){
-#ifndef __APPLE__        
-        if(!glewInitialized){
-          glewExperimental=GL_TRUE;
-          GLenum err = glewInit();
-          if (err != GLEW_OK) {
-            fprintf(stderr, "Failed to initialize GLEW\n");
-            fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
-            return;
-          }
-          fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
-          glewInitialized = true;
-        }
-#endif
+  void initGLFW() {
+    std::cout << "init GLFW\n";
 
-      }
-      void determineMaxAvailableVersion(){
-        for (int max=glfwVersionMajor;max!=0;--max){
-          if(max < glfwVersionMajor) glfwVersionMinor = 9;
-          for(int min=glfwVersionMinor; min != 0; --min) {
+    if (!glfwInit()) {
+      this->errorCallback(100501, "GLFW didn't initialized");
+      exit(EXIT_FAILURE);
+    }
+    if (!doCreateWindow) glfwWindowHint(GLFW_VISIBLE, false);
+    glfwSetErrorCallback(this->errorCallback);
+    determineMaxAvailableVersion();
+    glew();
+    std::cout << "Inited window\n";
 
-            std::cout << "Try: " << max <<"."<< min << "\n";
-            glfwWindowHint(GLFW_SAMPLES, samples);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, max);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, min);
-            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
-            //if(glfwVersionMajor * 10 + glfwVersionMinor > 32)
-              glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glGenVertexArrays(1, &vertexArrayId);
+    std::cout << "GEN ARRAYS BIND\n";
 
-            GLFWmonitor *monitor = glfwGetPrimaryMonitor();
-            const GLFWvidmode *mode = glfwGetVideoMode(monitor); 
-            if(isFullScreen) 
-              window = glfwCreateWindow(mode->width, 
-                mode->height, title.c_str(), monitor, NULL);
-            else
-              window = glfwCreateWindow(width, height, title.c_str(),NULL,NULL);
-            if(!window) continue;
+    glBindVertexArray(vertexArrayId);
+    std::cout << "DONE\n";
+  }
 
-            glfwMakeContextCurrent(window);
-            glfwSetInputMode(window, GLFW_STICKY_KEYS, 1);
-            glfwVersionMajor = max;
-            glfwVersionMinor = min;
-            return;
+  static void errorCallback(int error, const char *description) {
+    std::cerr << "[Error] " << error << " (" << description << ")\n";
+  }
+};
 
-          }
-        }
-      }
-
-      void initGLFW(){
-        std::cout << "init GLFW\n";
-
-        if(!glfwInit()){
-          this->errorCallback(100501, "GLFW didn't initialized");
-          exit( EXIT_FAILURE );
-        }
-        if (!doCreateWindow) 
-          glfwWindowHint(GLFW_VISIBLE, false);
-        glfwSetErrorCallback(this->errorCallback);
-        determineMaxAvailableVersion();
-        glew();
-        std::cout << "Inited window\n";
-        
-        glGenVertexArrays(1, &vertexArrayId);
-        std::cout << "GEN ARRAYS BIND\n";
-
-        glBindVertexArray(vertexArrayId);
-        std::cout << "DONE\n";
-      }
-
-      static void errorCallback(int error, const char *description){
-        std::cerr << "[Error] " << error << " (" << description << ")\n";
-      }
+  template<>
+  struct tpChooser<float> {
+    static uint16_t type(){ return GL_FLOAT; };
   };
+
 }

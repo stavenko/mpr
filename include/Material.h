@@ -29,10 +29,12 @@ namespace mpr{
       Material();
       Material(Material &m);
       Material &operator=(Material &m);
+
       void disposeMaterial() {
         std::shared_ptr<RenderSystem> rs(renderSystem);
         rs->disposeProgram(programId);
       }
+
       void readInputs(const string vShader, const string fShader){
         pair<SSMap, SSMap> vsResult = parseShader(vShader);
         pair<SSMap, SSMap> fsResult = parseShader(fShader);
@@ -56,14 +58,11 @@ namespace mpr{
       void compileProgram(const string vShader, const string fShader){
         shared_ptr<RenderSystem> rs(renderSystem);
         programId = rs->createProgram(vShader, fShader);
-        // rs->setProgram(programId);
         for(auto &uni: shaderUniformTypes){
-          std::cout << "uni: " << uni.first << " " << uni.second << "\n";
           uniformLocations.emplace(uni.first, 
               rs->getUniformLocation(programId, uni.first));
         }
         for(auto &attr:shaderAttributeTypes){
-          std::cout << "attr: " << attr.first << " " << attr.second << "\n";
           attributeLocations.emplace(attr.first,
             rs->getAttributeLocation(programId, attr.first));
         }
@@ -75,9 +74,16 @@ namespace mpr{
         readInputs(vertexShader, fragmentShader);
         compileProgram(vertexShader, fragmentShader);
       };
+
       ~Material(){
         this->disposeMaterial();
       }
+
+      void set(){
+        std::shared_ptr<RenderSystem> rs(renderSystem);
+        rs->setProgram(programId);
+      }
+
       const unordered_map<string, unsigned int> &
         getAttributeLocations(){ return attributeLocations; }
       const unordered_map<string, unsigned int> &

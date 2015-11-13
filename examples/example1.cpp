@@ -13,9 +13,9 @@
 static std::string testVertexShader12 = "#version 410\n\
 \n\
 // Input vertex data, different for all executions of this shader.\n\
-layout(location=0) in vec3 vertexPosition_modelspace;\n\
-layout(location=1) in vec3 vertexColor;\n\
-layout(location=2) in vec2 uvIn;\n\
+layout(location=0) in vec3 position;\n\
+// layout(location=1) in vec3 vertexColor;\n\
+// layout(location=2) in vec2 uvIn;\n\
 \n\
 // Output data ; will be interpolated for each fragment.\n\
 out vec3 fragmentColor;\n\
@@ -26,12 +26,12 @@ uniform mat4 MVP;\n\
 void main(){\n\
 \n\
         // Output position of the vertex, in clip space : MVP * position\n\
-        gl_Position =  MVP * vec4(vertexPosition_modelspace,1);\n\
+        gl_Position =  MVP * vec4(position,1);\n\
 \n\
         // The color of each vertex will be interpolated\n\
         // to produce the color of each fragment\n\
-        fragmentColor = vertexColor;\n\
-        uv = uvIn;\n\
+        fragmentColor = vec3(1,0,0);\n\
+        // uv = uvIn;\n\
 }";
 static std::string testFragmentShader12 = "#version 410\n\
 \n\
@@ -110,7 +110,7 @@ int main(int argc, char **args){
   ));
   mpr::Pass passOpt("MAIN", mpr::MAIN);
   mpr::RenderUnit pass0(material, mpr::Uniforms(), mpr::Attributes(), "MAIN");
-  pass0.set("vertices", attributePtr);
+  pass0.install("position", attributePtr);
   mesh->addPassUnit(pass0);
   mpr::Context ctx;
   ctx.add(passOpt);
