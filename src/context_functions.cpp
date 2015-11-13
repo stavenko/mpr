@@ -11,7 +11,10 @@ namespace mpr{
       shared_ptr<AttributeProvider> r)
   {
     for(auto attr:m->getAttributeLocations()){
-      // std::cout << attr.first << " " << attr.second << "\n";
+      auto attribute = r->getAttributeLocation(attr.first);
+      std::cout << "ATTR:" << attribute->getBufferId() << " " << attr.second << "\n";
+
+      
     }
   }
 
