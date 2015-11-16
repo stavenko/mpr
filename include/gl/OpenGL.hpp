@@ -23,6 +23,8 @@ void uniformInstaller(unsigned int location, const glm::vec2 &value) {
   glUniform2fv(location, 2, &value[0]);
 }
 
+
+
 class OpenGL final : public RenderSystem {
   int samples;
   int glfwVersionMajor;
