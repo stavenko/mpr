@@ -1,4 +1,5 @@
 set(PROJECT_TEST_NAME MPR_test)  
+set(CMAKE_EXPORT_COMPILE_COMMANDS "ON")
 
 include(ExternalProject)
 

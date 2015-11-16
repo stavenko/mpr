@@ -16,9 +16,12 @@ find_package(OpenGL REQUIRED)
 find_package(Git REQUIRED)
 find_package(GLEW REQUIRED)
 
+
 add_subdirectory(${MPR_SOURCE_DIR}/external/glfw)
 add_subdirectory(${MPR_SOURCE_DIR}/external/gtest)
+add_subdirectory(${MPR_SOURCE_DIR}/external/glm)
 include_directories(${MPR_SOURCE_DIR}/external/glfw/include)
+include_directories(${GLM_INCLUDE_DIR})
 
 add_subdirectory(src)
 add_subdirectory(examples)

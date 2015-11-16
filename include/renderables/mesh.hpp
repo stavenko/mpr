@@ -2,34 +2,34 @@
 #include "interfaces/RenderUnit.h"
 #include "../common/utils.hpp"
 
-namespace mpr{
-  class Mesh final:public Renderable{
-    private:
-      Uniforms uniforms;
-      std::vector<RenderUnit> renderUnits;
-    public:
-      Mesh(){
-        std::cout << "create mesh\n";
-      };
-      virtual ~Mesh(){
-        std::cout << "destroy mesh\n";
-      }
-      virtual void addPassUnit(RenderUnit ru) {
-        std::cout << "Add pass\n";
-        renderUnits.push_back(ru);
-      };
-      virtual std::vector<RenderUnit> getUnits(){
-        return renderUnits;
-      }
-      virtual std::vector<std::string> uniformNames(){
-        return keys(uniforms);
-      }
-      virtual std::shared_ptr<Uniform> getUniformValue(std::string name){
-        return uniforms[name];
-      }
-      virtual const Uniforms allUniforms(){
-        return uniforms;
-      }
-  };
+namespace mpr {
+class Mesh final : public Renderable {
+ private:
+  Uniforms uniforms;
+  std::vector<RenderUnit> renderUnits;
 
+ public:
+  Mesh() {
+    std::cout << "create mesh\n";
+  };
+  virtual ~Mesh() { std::cout << "destroy mesh\n"; }
+  virtual void addPassUnit(RenderUnit ru) {
+    std::cout << "Add pass\n";
+    renderUnits.push_back(ru);
+  };
+  virtual std::vector<RenderUnit> getUnits() { return renderUnits; }
+  virtual std::vector<std::string> uniformNames() { return keys(uniforms); }
+  virtual std::shared_ptr<Uniform> getUniformValue(std::string name) {
+    return uniforms[name];
+  }
+  virtual const Uniforms allUniforms() { return uniforms; }
+  virtual const boost::optional<std::shared_ptr<Uniform>> findUniform(
+      const string key) {
+    auto it = uniforms.find(key);
+    if (it == uniforms.end())
+      return boost::optional<std::shared_ptr<Uniform>>();
+    else
+      return boost::optional<std::shared_ptr<Uniform>>(it->second);
+  }
+};
 }

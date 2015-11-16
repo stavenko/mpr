@@ -24,6 +24,8 @@ class RenderUnit final : public MaterialProvider,
     this->material = other.material;
     this->attributes = other.attributes;
     this->passName = other.passName;
+    this->drawPoints = other.drawPoints;
+    this->drawType = other.drawType;
   }
   RenderUnit(std::shared_ptr<Material> m, Uniforms u, Attributes a,
              std::string passName)
@@ -38,6 +40,8 @@ class RenderUnit final : public MaterialProvider,
   Attributes attributes;
   shared_ptr<Material> material;
   string passName;
+  uint16_t drawType;
+  uint32_t drawPoints;
 
  public:  // implementations;
   virtual shared_ptr<Material> getMaterial() { return material; }
@@ -60,6 +64,13 @@ class RenderUnit final : public MaterialProvider,
   virtual void install(const string key, const shared_ptr<Attribute> a) {
     attributes.emplace(key, a);
   }
+  virtual void setAttributesDrawType(uint16_t t){ drawType = t;}
+  virtual uint16_t getAttributesDrawType(){ return drawType;}
+  virtual void setAttributePointAmount(uint32_t f){ drawPoints = f; } 
+  virtual uint32_t getAttributePointAmount(){ 
+    return  drawPoints ;
+  }
+
   virtual const boost::optional<std::shared_ptr<Attribute>> findAttribute(
       const string key) {
     auto it = attributes.find(key);
@@ -68,6 +79,7 @@ class RenderUnit final : public MaterialProvider,
     else
       return boost::optional<std::shared_ptr<Attribute>>(it->second);
   }
+
   virtual const boost::optional<std::shared_ptr<Uniform>> findUniform(
       const string key) {
     auto it = uniforms.find(key);

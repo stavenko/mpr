@@ -9,7 +9,8 @@ namespace mpr{
     Attribute();
     Attribute &operator=(Attribute&);
     unsigned int bufferId;
-    size_t size;
+    size_t perElement;
+    size_t elements;
     uint16_t type;
     bool isNormalized;
     std::weak_ptr<RenderSystem> renderer;
@@ -20,17 +21,19 @@ namespace mpr{
       explicit Attribute(
         std::weak_ptr<RenderSystem> r, 
         std::vector<T> &input,
+        size_t pe,
         bool in = false
-      ):bufferId(-1), isNormalized(in), renderer(r){
+      ):bufferId(-1), isNormalized(in), renderer(r), elements(input.size()), perElement(pe){
         std::shared_ptr<RenderSystem> rs(r);
-        bufferId = rs->createBuffer(sizeof(input), &input[0][0]);
-        size = sizeof(T);
+        bufferId = rs->createBuffer(input.size() * sizeof(T), &input[0]);
         type = rs->getItemType<T>();
       }
 
       void set(std::shared_ptr<RenderSystem> rs, unsigned int locationId){
-        rs->installAttribute(locationId, bufferId, size, type, isNormalized,0,0); 
+        rs->installAttribute(locationId, bufferId, perElement, type, isNormalized,0,0); 
       };
+
+      size_t size(){ return elements; }
 
       ~Attribute(){
         std::cout << "Dispose buffer\n";

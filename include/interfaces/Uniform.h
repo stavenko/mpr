@@ -2,14 +2,16 @@
 #include <unordered_map>
 #include <memory>
 #include "./RenderSystem.hpp"
+#include "../uniform_installers.hpp"
 
 namespace mpr{
 
   class Uniform{
-    private:
-      Uniform();
+    protected:
+      Uniform(){};
     public:
-      virtual void setup(unsigned int location);
+      virtual void set(std::shared_ptr<RenderSystem> rs, unsigned int location)=0;
+      virtual ~Uniform(){};
   };
 
   template<class T>
@@ -18,9 +20,9 @@ namespace mpr{
       UniformValue();
       const T value;
     public:
-      explicit UniformValue(T &v):value(v) {}
-      virtual void set(std::shared_ptr<RenderSystem> rs, unsigned int location) {
-        rs->installUniform(location, value);
+      explicit UniformValue(T v):value(v) {}
+      virtual void set(std::shared_ptr<RenderSystem>, unsigned int location) {
+        uniformInstaller(location, value);
       }
   };
 

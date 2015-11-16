@@ -1,6 +1,7 @@
 #pragma once
 #include "../interfaces/RenderSystem.hpp"
 #include "../Input.h"
+#include "./glUniforms.h"
 
 #ifndef __APPLE_CC__
 #include <GL/glew.h>
@@ -12,12 +13,23 @@
 #include <iostream>
 
 namespace mpr {
+void uniformInstaller(unsigned int location, const glm::mat4 &value) {
+  glUniformMatrix4fv(location, 1, GL_FALSE, &value[0][0]);
+}
+void uniformInstaller(unsigned int location, float &value) {
+  std::cout << "float value not implemented" << value << " \n";
+}
+void uniformInstaller(unsigned int location, const glm::vec2 &value) {
+  glUniform2fv(location, 2, &value[0]);
+}
+
 class OpenGL final : public RenderSystem {
   int samples;
   int glfwVersionMajor;
   int glfwVersionMinor;
   int width;
   int height;
+  int attributes;
   bool isFullScreen;
   bool doCreateWindow;
   bool glewInitialized;
@@ -30,7 +42,7 @@ class OpenGL final : public RenderSystem {
                                         uint16_t size, uint32_t type,
                                         bool isNormalized, uint16_t stride,
                                         void *ptr) {
-    glEnableVertexAttribArray(location);
+    glEnableVertexAttribArray(attributes++);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     glVertexAttribPointer(location, size, type, isNormalized, stride, ptr);
   }
@@ -41,12 +53,18 @@ class OpenGL final : public RenderSystem {
     glViewport(0, 0, width, height);
   }
 
-  virtual void setProgram(unsigned int programId) {
-    glUseProgram(programId);
+  virtual void setProgram(unsigned int programId) { 
+    glUseProgram(programId); 
+  }
+
+  virtual void startRender() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  }
+  virtual void render(unsigned int type, unsigned int amount) {
+    glDrawArrays(type, 0, amount );
   }
 
   virtual unsigned int createBuffer(size_t size, const void *ptr) {
-    std::cout << "create buffer\n";
     unsigned int bufferId;
     glGenBuffers(1, &bufferId);
     glBindBuffer(GL_ARRAY_BUFFER, bufferId);
@@ -60,13 +78,12 @@ class OpenGL final : public RenderSystem {
                                           const std::string &str) {
 
     unsigned int pid = glGetUniformLocation(programId, str.c_str());
-    std::cout << pid << " : " << programId << " : <" << str << ">\n";
     return pid;
   };
   virtual unsigned int getAttributeLocation(unsigned int programId,
                                             const std::string &str) {
+    std::cout << "get attr location\n";
     unsigned int pid = glGetAttribLocation(programId, str.c_str());
-    std::cout << pid << " : " << programId << " : " << str << "\n";
     return pid;
   };
   virtual unsigned int createProgram(std::string const vShader,
@@ -87,8 +104,6 @@ class OpenGL final : public RenderSystem {
       std::string vertexShaderErrorMessage;
       char log[InfoLogLength];
       glGetShaderInfoLog(vsId, InfoLogLength, NULL, log);
-      // glGetShaderInfoLog(vsId, InfoLogLength, NULL,
-      // &vertexShaderErrorMessage[0]);
       std::cout << vertexShaderErrorMessage << "\n";
       std::cout << log << "\n";
     }
@@ -136,14 +151,19 @@ class OpenGL final : public RenderSystem {
       : samples(4),
         glfwVersionMajor(4),
         glfwVersionMinor(6),
-        width(640),
-        height(480),
+        attributes(0),
+        width(400),
+        height(400),
         isFullScreen(false),
         doCreateWindow(true),
         window(nullptr),
         glewInitialized(false),
         title("Default title") {
     initGLFW();
+
+    glClearColor(0.0, 0.2, 0.3, 0.0);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
   }
 
   virtual ~OpenGL() {
@@ -153,6 +173,10 @@ class OpenGL final : public RenderSystem {
     std::cout << "destructor called" << std::endl;
   }
   virtual void finalizeRenderLoop() {
+    while (attributes > 0) {
+      glDisableVertexAttribArray(--attributes);
+    }
+    attributes = 0;
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
@@ -249,9 +273,10 @@ class OpenGL final : public RenderSystem {
   }
 };
 
-  template<>
-  struct tpChooser<float> {
-    static uint16_t type(){ return GL_FLOAT; };
+template <>
+struct tpChooser<float> {
+  static uint16_t type() {
+    return GL_FLOAT;
   };
-
+};
 }

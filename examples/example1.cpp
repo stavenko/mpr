@@ -1,7 +1,9 @@
-#include <iostream> 
+#include <iostream>
 #include <chrono>
 #include <thread>
 #include <array>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "renderables/mesh.hpp"
 #include "gl/OpenGL.hpp"
 #include "gl/Input.h"
@@ -10,7 +12,8 @@
 #include "ContextRenderer.hpp"
 #include "interfaces/Uniform.h"
 
-static std::string testVertexShader12 = "#version 410\n\
+static std::string testVertexShader12 =
+    "#version 410\n\
 \n\
 // Input vertex data, different for all executions of this shader.\n\
 layout(location=0) in vec3 position;\n\
@@ -33,9 +36,10 @@ void main(){\n\
         fragmentColor = vec3(1,0,0);\n\
         // uv = uvIn;\n\
 }";
-static std::string testFragmentShader12 = "#version 410\n\
+static std::string testFragmentShader12 =
+    "#version 410\n\
 \n\
-uniform sampler2D tex;\n\
+// uniform sampler2D tex;\n\
 uniform vec2 ppos;\n\
 // Interpolated values from the vertex shaders\n\
 in vec3 fragmentColor;\n\
@@ -46,71 +50,80 @@ void main(){\n\
 \n\
         // Output color = color specified in the vertex shader,\n\
         // interpolated between all 3 surrounding vertices\n\
-        vec4 someColor= texture(tex, uv);\n\
-        color = vec4(fragmentColor.xy + ppos, 1, 1) + someColor;\n\
+        // vec4 someColor= texture(tex, uv);\n\
+        color = vec4(1, 0, 0, 1) ;\n\
 }";
-static const GLfloat g_vertex_buffer_data[][3] = { 
-  {-1.0f,-1.0f,-1.0f}, 
-  {-1.0f,-1.0f, 1.0f}, 
-  {-1.0f, 1.0f, 1.0f}, 
-  {1.0f, 1.0f, -1.0f}, 
-  {-1.0f,-1.0f,-1.0f}, 
-  {-1.0f, 1.0f,-1.0f}, 
-  {1.0f,-1.0f , 1.0f}, 
-  {-1.0f,-1.0f,-1.0f}, 
-  {1.0f,-1.0f ,-1.0f}, 
-  {1.0f, 1.0f ,-1.0f}, 
-  {1.0f,-1.0f ,-1.0f}, 
-  {-1.0f,-1.0f,-1.0f}, 
-  {-1.0f,-1.0f,-1.0f}, 
-  {-1.0f, 1.0f, 1.0f}, 
-  {-1.0f, 1.0f,-1.0f}, 
-  {1.0f,-1.0f , 1.0f}, 
-  {-1.0f,-1.0f, 1.0f}, 
-  {-1.0f,-1.0f,-1.0f}, 
-  {-1.0f, 1.0f, 1.0f}, 
-  {-1.0f,-1.0f, 1.0f}, 
-  {1.0f,-1.0f , 1.0f}, 
-  {1.0f, 1.0f , 1.0f}, 
-  {1.0f,-1.0f ,-1.0f}, 
-  {1.0f, 1.0f ,-1.0f}, 
-  {1.0f,-1.0f ,-1.0f}, 
-  {1.0f, 1.0f , 1.0f}, 
-  {1.0f,-1.0f , 1.0f}, 
-  {1.0f, 1.0f , 1.0f}, 
-  {1.0f, 1.0f ,-1.0f}, 
-  {-1.0f, 1.0f,-1.0f}, 
-  {1.0f, 1.0f , 1.0f}, 
-  {-1.0f, 1.0f,-1.0f}, 
-  {-1.0f, 1.0f, 1.0f}, 
-  {1.0f, 1.0f , 1.0f}, 
-  {-1.0f, 1.0f, 1.0f}, 
-  {1.0f,-1.0f , 1.0f} 
-};
+static const GLfloat g_vertex_buffer_data[] =  { 
+		-1.0f,-1.0f,-1.0f,
+		-1.0f,-1.0f, 1.0f,
+		-1.0f, 1.0f, 1.0f,
+		 1.0f, 1.0f,-1.0f,
+		-1.0f,-1.0f,-1.0f,
+		-1.0f, 1.0f,-1.0f,
 
-int main(int argc, char **args){
+		 1.0f,-1.0f, 1.0f,
+		-1.0f,-1.0f,-1.0f,
+		 1.0f,-1.0f,-1.0f,
+		 1.0f, 1.0f,-1.0f,
+		 1.0f,-1.0f,-1.0f,
+		-1.0f,-1.0f,-1.0f,
+
+		-1.0f,-1.0f,-1.0f,
+		-1.0f, 1.0f, 1.0f,
+		-1.0f, 1.0f,-1.0f,
+		 1.0f,-1.0f, 1.0f,
+		-1.0f,-1.0f, 1.0f,
+		-1.0f,-1.0f,-1.0f,
+		-1.0f, 1.0f, 1.0f,
+		-1.0f,-1.0f, 1.0f,
+		 1.0f,-1.0f, 1.0f,
+		 1.0f, 1.0f, 1.0f,
+		 1.0f,-1.0f,-1.0f,
+		 1.0f, 1.0f,-1.0f,
+		 1.0f,-1.0f,-1.0f,
+		 1.0f, 1.0f, 1.0f,
+		 1.0f,-1.0f, 1.0f,
+		 1.0f, 1.0f, 1.0f,
+		 1.0f, 1.0f,-1.0f,
+		-1.0f, 1.0f,-1.0f,
+		 1.0f, 1.0f, 1.0f,
+		-1.0f, 1.0f,-1.0f,
+		-1.0f, 1.0f, 1.0f,
+		 1.0f, 1.0f, 1.0f,
+		-1.0f, 1.0f, 1.0f,
+		 1.0f,-1.0f, 1.0f
+	};
+
+
+int main(int argc, char **args) {
   int vertexDataSize = sizeof(g_vertex_buffer_data) / sizeof(GLfloat);
-  std::cout << "S:" << vertexDataSize / 3 << "\n";
-  std::vector<std::array<float,3>> buffer(vertexDataSize / 3);
-  for(int i =0; i < vertexDataSize / 3; ++i) {
-    std::array<float,3> v{g_vertex_buffer_data[i][0],
-                          g_vertex_buffer_data[i][1],
-                          g_vertex_buffer_data[i][2]};
-    buffer.push_back(v);
+  std::vector<float> buffer; // (vertexDataSize);
+  for (int i = 0; i < vertexDataSize ; ++i) {
+    buffer.push_back(g_vertex_buffer_data[i]);
+
   }
 
-  std::shared_ptr<mpr::RenderSystem> 
-    openGL(new mpr::OpenGL());
-  std::shared_ptr<mpr::Attribute> attributePtr(new mpr::Attribute(openGL, buffer));
+  std::shared_ptr<mpr::RenderSystem> openGL(new mpr::OpenGL());
+  std::shared_ptr<mpr::Attribute> attributePtr(
+      new mpr::Attribute(openGL, buffer, 3));
   std::shared_ptr<mpr::Mesh> mesh(new mpr::Mesh);
-  std::shared_ptr<mpr::Material> material(new mpr::Material(
-    openGL,
-    testVertexShader12,
-    testFragmentShader12 
-  ));
+  std::shared_ptr<mpr::Material> material(
+      new mpr::Material(openGL, testVertexShader12, testFragmentShader12));
   mpr::Pass passOpt("MAIN", mpr::MAIN);
-  mpr::RenderUnit pass0(material, mpr::Uniforms(), mpr::Attributes(), "MAIN");
+  auto uniforms = mpr::Uniforms();
+  auto projection = glm::perspective(glm::radians(45.0f), 4.0f/3.0f, 0.01f, 100.0f);
+  auto view = glm::lookAt(glm::vec3(4,3,-3), glm::vec3(0,0,0), glm::vec3(0,1,0));
+  auto model = glm::mat4(1.f);
+
+  std::shared_ptr<mpr::Uniform>  mvp(new mpr::UniformValue<glm::mat4>(projection * view * model));
+  std::shared_ptr<mpr::Uniform>  v2p(new mpr::UniformValue<glm::vec2>(glm::vec2()));
+  uniforms.emplace( "MVP", mvp );
+  uniforms.emplace( "ppos", v2p );
+
+  mpr::RenderUnit pass0(material, uniforms, mpr::Attributes(), "MAIN");
+  pass0.setAttributesDrawType(GL_TRIANGLES);
   pass0.install("position", attributePtr);
+  pass0.setAttributePointAmount(buffer.size());
   mesh->addPassUnit(pass0);
   mpr::Context ctx;
   ctx.add(passOpt);
@@ -119,20 +132,20 @@ int main(int argc, char **args){
   bool shoudClose = false;
 
   mpr::Input<mpr::OpenGL>::instance()
-    .setRenderSystem(openGL)
-    .onClose([&shoudClose]() { shoudClose = true; })
-    .bindKeys([&](int key, int scancode, int action, int mode){
-      std::cout << "Dymanic\n";
-    });
+      .setRenderSystem(openGL)
+      .onClose([&shoudClose]() { shoudClose = true; })
+      .bindKeys([&](int key, int scancode, int action,
+                    int mode) { std::cout << "Dymanic\n"; });
 
   mpr::ContextRenderer ctxR(openGL);
 
-  while(!shoudClose){
+  while (!shoudClose) {
 
     ctxR.render(ctx);
     std::this_thread::sleep_for(std::chrono::milliseconds(20));
   }
 
-  std::cout << "Go on" << "\n";
-  return 1; 
+  std::cout << "Go on"
+            << "\n";
+  return 1;
 }

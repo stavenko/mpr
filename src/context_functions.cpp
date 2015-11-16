@@ -3,8 +3,11 @@
 
 namespace mpr {
 using std::shared_ptr;
-void ContextRenderer::finishRender() {
-  // std::cout << "Finish rendering\n";
+void ContextRenderer::finishRender(uint16_t type, uint32_t amount) {
+  this->renderSystem->render(type, amount);
+
+
+  
 }
 void ContextRenderer::setAttributes(shared_ptr<Material> m,
                                     shared_ptr<AttributeProvider> r) {
@@ -36,14 +39,16 @@ void ContextRenderer::setMaterial(std::shared_ptr<MaterialProvider> r) {
 
 void ContextRenderer::preparePass(Pass &p) {
   // std::cout << "prepare pass:" << p.name << "\n";
+  renderSystem->startRender();
 }
 
 void ContextRenderer::unitRender(shared_ptr<RenderUnit> r) {
   this->setMaterial(r);
-  this->setAttributes(r->getMaterial(),
-                      static_cast<shared_ptr<mpr::AttributeProvider>>(r));
   this->setUniforms(r->getMaterial(), r);
-  this->finishRender();
+  auto attrProvider = static_cast<shared_ptr<mpr::AttributeProvider>>(r);
+  this->setAttributes(r->getMaterial(), attrProvider);
+  this->finishRender(attrProvider->getAttributesDrawType(), 
+      attrProvider->getAttributePointAmount());
 }
 
 void ContextRenderer::renderPass(Context const &ctx, Pass &p) {
@@ -51,6 +56,7 @@ void ContextRenderer::renderPass(Context const &ctx, Pass &p) {
   for (auto ru : ctx.getRenderUnits(p.name)) {
     this->unitRender(ru);
   }
+
 }
 
 void ContextRenderer::render(Context const &ctx) {
