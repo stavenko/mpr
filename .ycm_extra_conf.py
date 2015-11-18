@@ -34,68 +34,16 @@ import os
 import ycm_core
 
 flags = [
-    '-wall',
-    '-wextra',
-    '-werror',
-    # '-wc++98-compat',
-    '-wno-long-long',
-    '-wno-variadic-macros',
-    '-fexceptions',
-    '-dndebug',
-    # you 100% do not need -duse_clang_completer in your flags; only the ycm
-    # source code needs it.
-    '-duse_clang_completer',
-    # this is important! without a "-std=<something>" flag, clang won't know which
-    # language to use when compiling headers. so it will guess. badly. so c++
-    # headers will be compiled as c headers. you don't want that so always specify
-    # a "-std=<something>".
-    # for a c project, you would set this to something like 'c99' instead of
-    # 'c++11'.
+    '-Wall',
+    '-Duse_clang_completer',
     '-std=c++11',
-    # ...and the same thing goes for the magic -x option which specifies the
-    # language that the files to be compiled are written in. this is mostly
-    # relevant for c++ headers.
-    # for a c project, you would set this to 'c' instead of 'c++'.
     '-x',
     'c++',
-    '-isystem',
-    '../boostparts',
-    '-isystem',
-    # this path will only work on os x, but extra paths that don't exist are not
-    # harmful
-    '/system/library/frameworks/python.framework/headers',
-    '-isystem',
-    '../llvm/include',
-    '-isystem',
-    '../llvm/tools/clang/include',
-
-    '-i',
-    '../include',
-    '-i',
-    './include',
-
-    '-i',
-    '..',
-    '-i',
-    '.',
-
-    '-i',
-    './clangcompleter',
-    '-isystem',
-    './tests/gmock/gtest',
-    '-isystem',
-    './tests/gmock/gtest/include',
-    '-isystem',
-    './tests/gmock',
-    '-isystem',
-    './tests/gmock/include',
-    '-isystem ',
-    '/usr/include/nodejs/src/',
-
-
     '-D_GLFW_USE_CONFIG_H',
     '-I/home/vstavenko/projects/mpr/external/glfw/src',
     '-I/tmp/tmphWImFU/external/glfw/src',
+    '-I./include',
+    '-I../include',
 ]
 
 

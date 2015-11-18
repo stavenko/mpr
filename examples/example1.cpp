@@ -2,6 +2,7 @@
 #include <chrono>
 #include <thread>
 #include <array>
+#include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "renderables/mesh.hpp"
@@ -149,11 +150,13 @@ int main(int argc, char **args) {
   for (int i = 0; i < vertexDataSize; ++i) {
     uvs.push_back(g_uv_buffer_data[i]);
   }
+  
 
       
 
   std::shared_ptr<mpr::RenderSystem> openGL(new mpr::OpenGL());
   //mpr::Texture tex(openGL, "/home/vstavenko/projects/ogl/tutorial05_textured_cube/uvtemplate.bmp");
+  mpr::Texture t(openGL, filePath );
 
   std::shared_ptr<mpr::Attribute> attributePtr(
       new mpr::Attribute(openGL, buffer, 3));
